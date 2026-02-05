@@ -3,60 +3,46 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>EU Resort Junk Fee Removal – Comparison UI</title>
+  <title>EU Resort Junk Fee Removal</title>
 
   <style>
-    * { box-sizing: border-box; }
-
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto;
+      background: #1a1a2e;
+      color: #eee;
       max-width: 1500px;
       margin: 0 auto;
       padding: 20px;
-      background: #1a1a2e;
-      color: #eee;
     }
 
-    h1 { color: #00d4aa; margin-bottom: 5px; }
-    .subtitle { color: #888; margin-bottom: 30px; }
+    h1 { color: #00d4aa; }
+    h2 { color: #00d4aa; margin-top: 40px; }
 
-    .section {
+    .panel {
       background: #16213e;
-      padding: 20px;
       border-radius: 8px;
-      margin-bottom: 20px;
+      padding: 20px;
+      margin-bottom: 30px;
     }
 
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 600;
-      color: #aaa;
-    }
-
-    input {
+    .controls input {
       width: 100%;
       padding: 12px;
       border-radius: 6px;
       border: 1px solid #333;
       background: #0f0f23;
       color: #fff;
+      margin-bottom: 10px;
     }
 
     button {
       background: #00d4aa;
-      color: #000;
       border: none;
       padding: 14px 40px;
+      border-radius: 8px;
       font-size: 16px;
       font-weight: 600;
-      border-radius: 8px;
       cursor: pointer;
-    }
-
-    button:disabled {
-      background: #333;
-      color: #666;
     }
 
     .status {
@@ -66,11 +52,10 @@
       display: none;
     }
 
-    .status.loading { display:block; background:#1e3a5f; color:#7dd3fc; }
-    .status.success { display:block; background:#1e5f3a; color:#86efac; }
-    .status.error   { display:block; background:#5f1e1e; color:#fca5a5; }
+    .status.loading { display:block; background:#1e3a5f; }
+    .status.success { display:block; background:#1e5f3a; }
+    .status.error   { display:block; background:#5f1e1e; }
 
-    /* 4-window grid */
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -79,22 +64,16 @@
 
     .card {
       background: #0f0f23;
-      border-radius: 6px;
       padding: 15px;
-    }
-
-    .card h3 {
-      margin-top: 0;
-      color: #00d4aa;
-      font-size: 14px;
+      border-radius: 6px;
     }
 
     pre {
-      min-height: 260px;
+      min-height: 250px;
       max-height: 500px;
       overflow: auto;
       white-space: pre-wrap;
-      font-family: 'Monaco', 'Consolas', monospace;
+      font-family: monospace;
       font-size: 13px;
     }
 
@@ -106,45 +85,39 @@
 
 <body>
   <h1>🏨 EU Resort Junk Fee Removal</h1>
-  <p class="subtitle">RAI & Policies – Side-by-side comparison</p>
+  <p>RAI & Policies – Langflow Execution UI</p>
 
   <!-- Controls -->
-  <div class="section">
-    <label>Langflow API Key</label>
-    <input id="apiKey" type="password">
-
-    <label style="margin-top:10px;">Resort ID</label>
-    <input id="resortId" type="text" value="5642">
-
-    <div style="margin-top:20px;">
-      <button id="runBtn" onclick="runFlow()">Run Flow</button>
-    </div>
-
+  <div class="panel controls">
+    <input id="apiKey" type="password" placeholder="Langflow API Key">
+    <input id="resortId" type="text" value="5642" placeholder="Resort ID">
+    <button onclick="runFlow()" id="runBtn">🚀 Run Flow</button>
     <div id="status" class="status" role="status" aria-live="polite"></div>
   </div>
 
-  <!-- Output -->
-  <div class="section">
-    <div class="grid">
-      <div class="card">
-        <h3>📥 Original ArrivalInfo (RAI)</h3>
-        <pre id="origRAI">Waiting…</pre>
-      </div>
+  <!-- POLICIES -->
+  <h2>📋 Policies</h2>
+  <div class="panel grid">
+    <div class="card">
+      <h3>Original Policies</h3>
+      <pre id="origPolicies">Waiting…</pre>
+    </div>
+    <div class="card">
+      <h3>Updated Policies</h3>
+      <pre id="updatedPolicies">Waiting…</pre>
+    </div>
+  </div>
 
-      <div class="card">
-        <h3>✨ Updated ArrivalInfo (RAI)</h3>
-        <pre id="updatedRAI">Waiting…</pre>
-      </div>
-
-      <div class="card">
-        <h3>📥 Original Policies</h3>
-        <pre id="origPolicies">Waiting…</pre>
-      </div>
-
-      <div class="card">
-        <h3>✨ Updated Policies</h3>
-        <pre id="updatedPolicies">Waiting…</pre>
-      </div>
+  <!-- RAI -->
+  <h2>📝 Arrival Info (RAI)</h2>
+  <div class="panel grid">
+    <div class="card">
+      <h3>Original RAI</h3>
+      <pre id="origRAI">Waiting…</pre>
+    </div>
+    <div class="card">
+      <h3>Updated RAI</h3>
+      <pre id="updatedRAI">Waiting…</pre>
     </div>
   </div>
 
@@ -154,32 +127,32 @@
 
     /* 🔑 Map UI panes → Langflow node IDs */
     const NODE_MAP = {
-      origRAI: 'DynamicFieldExtractor-4KJ4n',
-      updatedRAI: 'Prompt Template-9r1K1',
       origPolicies: 'DynamicFieldExtractor-sHpfr',
-      updatedPolicies: 'Prompt Template-AVk4F'
+      updatedPolicies: 'Prompt Template-AVk4F',
+      origRAI: 'DynamicFieldExtractor-4KJ4n',
+      updatedRAI: 'Prompt Template-9r1K1'
     };
 
-    function extractByNodeId(outputs, nodeId) {
-      const match = outputs.find(o => o.component_id === nodeId);
-      return match?.results?.message?.text || '— No output —';
+    function extract(outputs, nodeId) {
+      return outputs.find(o => o.component_id === nodeId)
+        ?.results?.message?.text || '— No output —';
     }
 
     async function runFlow() {
       const apiKey = apiKey.value.trim();
       const resortId = resortId.value.trim();
-      const statusEl = document.getElementById('status');
+      const status = document.getElementById('status');
       const btn = document.getElementById('runBtn');
 
       if (!apiKey) {
-        statusEl.className = 'status error';
-        statusEl.textContent = 'API key required';
+        status.className = 'status error';
+        status.textContent = 'API key required';
         return;
       }
 
       btn.disabled = true;
-      statusEl.className = 'status loading';
-      statusEl.textContent = 'Running Langflow…';
+      status.className = 'status loading';
+      status.textContent = 'Running Langflow…';
 
       try {
         const res = await fetch(API_URL, {
@@ -198,20 +171,16 @@
         const data = await res.json();
         const outputs = data.outputs || [];
 
-        origRAI.textContent =
-          extractByNodeId(outputs, NODE_MAP.origRAI);
-        updatedRAI.textContent =
-          extractByNodeId(outputs, NODE_MAP.updatedRAI);
-        origPolicies.textContent =
-          extractByNodeId(outputs, NODE_MAP.origPolicies);
-        updatedPolicies.textContent =
-          extractByNodeId(outputs, NODE_MAP.updatedPolicies);
+        origPolicies.textContent = extract(outputs, NODE_MAP.origPolicies);
+        updatedPolicies.textContent = extract(outputs, NODE_MAP.updatedPolicies);
+        origRAI.textContent = extract(outputs, NODE_MAP.origRAI);
+        updatedRAI.textContent = extract(outputs, NODE_MAP.updatedRAI);
 
-        statusEl.className = 'status success';
-        statusEl.textContent = 'Flow completed';
+        status.className = 'status success';
+        status.textContent = 'Flow completed successfully';
       } catch (e) {
-        statusEl.className = 'status error';
-        statusEl.textContent = e.toString();
+        status.className = 'status error';
+        status.textContent = e.toString();
       } finally {
         btn.disabled = false;
       }
