@@ -1,190 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>EU Resort Junk Fee Removal</title>
+You need to check and modify the policy elements as follows:
 
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto;
-      background: #1a1a2e;
-      color: #eee;
-      max-width: 1500px;
-      margin: 0 auto;
-      padding: 20px;
-    }
+⸻
 
-    h1 { color: #00d4aa; }
-    h2 { color: #00d4aa; margin-top: 40px; }
+Instructions
 
-    .panel {
-      background: #16213e;
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 30px;
-    }
+✅ What to remove:
+	•	Any words, phrases, sentences, or HTML elements that explicitly state a fee is mandatory, required, or non-refundable (unless it is refundable).
+	•	Any mentions of the following fee types (not case sensitive), including their HTML containers (e.g. <p>, <li>, or nested tags if applicable):
+	•	“resort fee”
+	•	“holiday tax”
+	•	“Eco tax”
+	•	“destination fee”
+	•	“service fee”
+	•	“facility fee”
+	•	“amenity fee”
+	•	“utility surcharge”
+	•	“property fee”
+	•	Any patterns such as:
+	•	“per night”, “per stay”, “nightly”, “daily”, “each reservation”
+when these phrases are attached to mandatory, non-refundable fees.
+	•	Sentences like:
+	•	“This fee is mandatory for all guests requiring parking.”
+	•	“included in the resort fee.” (delete only the mandatory clause or sentence containing it)
 
-    .controls input {
-      width: 100%;
-      padding: 12px;
-      border-radius: 6px;
-      border: 1px solid #333;
-      background: #0f0f23;
-      color: #fff;
-      margin-bottom: 10px;
-    }
+⸻
 
-    button {
-      background: #00d4aa;
-      border: none;
-      padding: 14px 40px;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-    }
+✅ Removal approach with HTML nesting:
+	•	Remove the entire HTML element (e.g. paragraph, list item) containing the mandatory, non-refundable fee mention.
+	•	If the mention is within a nested tag (e.g. <span> within <p>), remove the entire outer HTML element to avoid broken markup.
 
-    .status {
-      margin-top: 15px;
-      padding: 10px;
-      border-radius: 6px;
-      display: none;
-    }
 
-    .status.loading { display:block; background:#1e3a5f; }
-    .status.success { display:block; background:#1e5f3a; }
-    .status.error   { display:block; background:#5f1e1e; }
+*** EDGE CASES ***
+Cleaning fees should also be removed altogether. However, you need to distinguish between cleaning fees and cleaning fines for policy violations or damages. A cleaning fine is not a mandatory fee as it depends on whether guests provoked damaged or didn't respect a policy like pets being unallowed. In the latter case, please reformulate (replace "cleaning fee" with "cleaning fine". Only convert to “fine” when punitive terms are present in the same sentence/line: "not allowed", “excessive cleaning”, “damage”, “violation”, “non-compliance”, “unauthorized”, “smoking”, “policy breach”, “additional cleaning required”, “as a penalty”, “subject to fine”
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
+⸻
 
-    .card {
-      background: #0f0f23;
-      padding: 15px;
-      border-radius: 6px;
-    }
+What NOT to do:
 
-    pre {
-      min-height: 250px;
-      max-height: 500px;
-      overflow: auto;
-      white-space: pre-wrap;
-      font-family: monospace;
-      font-size: 13px;
-    }
+❌ Do NOT:
+	•	Reword, paraphrase, or modify remaining text.
+	•	Invent or add new text.
+	•	Remove refundable and optinal fees (e.g. damage deposits, parking, housekeeping, etc).
+	•	Remove conditional charges (e.g. parking fee if only charged upon use). Keep the fee amount. 
+	•	Remove cleaning fees if they are penalties or pet-related.
+	•	Strip HTML tags or formatting for text elements that are not targeted for removal.
 
-    @media (max-width: 900px) {
-      .grid { grid-template-columns: 1fr; }
-    }
-  </style>
-</head>
+⸻
 
-<body>
-  <h1>🏨 EU Resort Junk Fee Removal</h1>
-  <p>RAI & Policies – Langflow Execution UI</p>
+Output Requirements
 
-  <!-- Controls -->
-  <div class="panel controls">
-    <input id="apiKey" type="password" placeholder="Langflow API Key">
-    <input id="resortId" type="text" value="5642" placeholder="Resort ID">
-    <button onclick="runFlow()" id="runBtn">🚀 Run Flow</button>
-    <div id="status" class="status" role="status" aria-live="polite"></div>
-  </div>
+✅ Return the entire JSON document with only the "text" attribute updated in each policy element that required cleaning.
+✅ Leave all other JSON keys, values, structure, and formatting exactly as is.
+✅ Return only the updated JSON document. Do not include explanations, summaries, or additional commentary.
 
-  <!-- POLICIES -->
-  <h2>📋 Policies</h2>
-  <div class="panel grid">
-    <div class="card">
-      <h3>Original Policies</h3>
-      <pre id="origPolicies">Waiting…</pre>
-    </div>
-    <div class="card">
-      <h3>Updated Policies</h3>
-      <pre id="updatedPolicies">Waiting…</pre>
-    </div>
-  </div>
+IMPORTANT! Return only the updated JSON document. Nothing else.
 
-  <!-- RAI -->
-  <h2>📝 Arrival Info (RAI)</h2>
-  <div class="panel grid">
-    <div class="card">
-      <h3>Original RAI</h3>
-      <pre id="origRAI">Waiting…</pre>
-    </div>
-    <div class="card">
-      <h3>Updated RAI</h3>
-      <pre id="updatedRAI">Waiting…</pre>
-    </div>
-  </div>
 
-  <script>
-    const API_URL =
-      'https://langflow-staging.leavetown.com/api/v1/run/8cda597f-c9c5-4440-827d-862142a271f9';
+⸻
 
-    /* 🔑 Map UI panes → Langflow node IDs */
-    const NODE_MAP = {
-      origPolicies: 'DynamicFieldExtractor-sHpfr',
-      updatedPolicies: 'Prompt Template-AVk4F',
-      origRAI: 'DynamicFieldExtractor-4KJ4n',
-      updatedRAI: 'Prompt Template-9r1K1'
-    };
 
-    function extract(outputs, nodeId) {
-      return outputs.find(o => o.component_id === nodeId)
-        ?.results?.message?.text || '— No output —';
-    }
-
-    async function runFlow() {
-      const apiKey = apiKey.value.trim();
-      const resortId = resortId.value.trim();
-      const status = document.getElementById('status');
-      const btn = document.getElementById('runBtn');
-
-      if (!apiKey) {
-        status.className = 'status error';
-        status.textContent = 'API key required';
-        return;
-      }
-
-      btn.disabled = true;
-      status.className = 'status loading';
-      status.textContent = 'Running Langflow…';
-
-      try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': apiKey
-          },
-          body: JSON.stringify({
-            input_type: 'chat',
-            output_type: 'chat',
-            input_value: resortId
-          })
-        });
-
-        const data = await res.json();
-        const outputs = data.outputs || [];
-
-        origPolicies.textContent = extract(outputs, NODE_MAP.origPolicies);
-        updatedPolicies.textContent = extract(outputs, NODE_MAP.updatedPolicies);
-        origRAI.textContent = extract(outputs, NODE_MAP.origRAI);
-        updatedRAI.textContent = extract(outputs, NODE_MAP.updatedRAI);
-
-        status.className = 'status success';
-        status.textContent = 'Flow completed successfully';
-      } catch (e) {
-        status.className = 'status error';
-        status.textContent = e.toString();
-      } finally {
-        btn.disabled = false;
-      }
-    }
-  </script>
-</body>
-</html>
+{Policies}
+Output ONLY the JSON object with the fields to update. 
+Do NOT wrap it in an "extracted" key or any other wrapper.
+Return valid JSON directly.
