@@ -1,65 +1,383 @@
-You need to check and modify the policy elements as follows:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>EU Resort Junk Fee Removal - Prompt Tester</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px 30px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header h1 { font-size: 22px; }
+        header p { opacity: 0.85; font-size: 13px; margin-top: 4px; }
+        .setup-bar {
+            background: #16213e;
+            padding: 12px 30px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            border-bottom: 1px solid #2a2a4a;
+        }
+        .setup-bar label {
+            font-size: 11px; color: #aaa;
+            text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+        }
+        .setup-bar input {
+            flex: 1; padding: 8px 12px;
+            background: #0f3460; border: 1px solid #2a2a4a;
+            border-radius: 6px; color: #eee; font-size: 12px;
+        }
+        .setup-bar input:focus { outline: none; border-color: #667eea; }
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            background: #16213e;
+            border-radius: 0 0 12px 12px;
+            overflow: hidden;
+            min-height: 70vh;
+        }
+        .editor-panel { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+        .meta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 150px; }
+        .form-group label {
+            font-size: 11px; color: #aaa;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .form-group input, .form-group select {
+            padding: 9px 12px; background: #0f3460;
+            border: 1px solid #2a2a4a; border-radius: 6px;
+            color: #eee; font-size: 13px;
+        }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #667eea; }
+        .form-group select option { background: #0f3460; }
+        textarea {
+            flex: 1; min-height: 300px; padding: 16px;
+            background: #0f3460; border: 1px solid #2a2a4a;
+            border-radius: 8px; color: #eee;
+            font-family: 'Courier New', monospace;
+            font-size: 13px; line-height: 1.6; resize: vertical;
+        }
+        textarea:focus { outline: none; border-color: #667eea; }
+        .btn-row { display: flex; gap: 10px; }
+        button {
+            padding: 10px 20px; border: none; border-radius: 6px;
+            font-size: 13px; font-weight: 600; cursor: pointer;
+            transition: all 0.2s;
+        }
+        button:hover { transform: translateY(-1px); }
+        button:active { transform: translateY(0); }
+        .btn-save { background: linear-gradient(135deg, #667eea, #764ba2); color: white; flex: 1; }
+        .btn-save:hover { box-shadow: 0 4px 15px rgba(102,126,234,0.4); }
+        .btn-clear { background: #2a2a4a; color: #ccc; }
+        .btn-clear:hover { background: #3a3a5a; }
+        .history-panel {
+            background: #0f3460; border-left: 1px solid #2a2a4a;
+            display: flex; flex-direction: column;
+        }
+        .history-header {
+            padding: 16px 20px; border-bottom: 1px solid #2a2a4a;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .history-header h2 { font-size: 15px; color: #eee; }
+        .btn-refresh {
+            background: transparent; color: #667eea;
+            padding: 6px 10px; font-size: 12px;
+            border: 1px solid #667eea; border-radius: 4px;
+        }
+        .btn-refresh:hover { background: rgba(102,126,234,0.1); }
+        .version-nav { display: flex; border-bottom: 1px solid #2a2a4a; }
+        .btn-nav {
+            flex: 1; background: transparent; color: #aaa;
+            padding: 10px; font-size: 12px; border-radius: 0;
+        }
+        .btn-nav:hover { background: rgba(102,126,234,0.1); color: #667eea; transform: none; }
+        .btn-nav:disabled { opacity: 0.3; cursor: default; }
+        .btn-nav:disabled:hover { background: transparent; color: #aaa; }
+        .version-list { flex: 1; overflow-y: auto; }
+        .version-item {
+            padding: 14px 20px; border-bottom: 1px solid #1a1a3e;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .version-item:hover { background: rgba(102,126,234,0.08); }
+        .version-item.selected { background: rgba(102,126,234,0.15); border-left: 3px solid #667eea; }
+        .version-item .v-name { font-weight: 600; font-size: 13px; color: #eee; margin-bottom: 4px; }
+        .version-item .v-meta { font-size: 11px; color: #888; }
+        .version-item .v-type {
+            display: inline-block; padding: 2px 8px; border-radius: 10px;
+            font-size: 10px; font-weight: 600; margin-top: 4px;
+        }
+        .v-type.rai { background: rgba(76,175,80,0.2); color: #81c784; }
+        .v-type.policies { background: rgba(33,150,243,0.2); color: #64b5f6; }
+        .empty-state { padding: 40px 20px; text-align: center; color: #666; font-size: 13px; }
+        .status-bar {
+            padding: 10px 20px; font-size: 12px; text-align: center;
+            border-top: 1px solid #2a2a4a;
+        }
+        .status-bar.success { background: rgba(76,175,80,0.15); color: #81c784; }
+        .status-bar.error { background: rgba(244,67,54,0.15); color: #ef9a9a; }
+        .status-bar.loading { background: rgba(33,150,243,0.15); color: #64b5f6; }
+        .status-bar:empty { display: none; }
+        .current-version-badge {
+            display: inline-block; padding: 4px 12px;
+            background: rgba(102,126,234,0.2); border: 1px solid rgba(102,126,234,0.3);
+            border-radius: 20px; font-size: 12px; color: #a5b4fc;
+        }
+        @media (max-width: 900px) {
+            .main-grid { grid-template-columns: 1fr; }
+            .history-panel { border-left: none; border-top: 1px solid #2a2a4a; max-height: 300px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>Prompt Testing &amp; Versioning</h1>
+                <p>EU Resort Junk Fee Removal &mdash; RAI &amp; Policies</p>
+            </div>
+            <span id="currentBadge" class="current-version-badge">No version loaded</span>
+        </header>
 
-⸻
+        <div class="setup-bar">
+            <label>Apps Script URL</label>
+            <input type="text" id="appsScriptUrl"
+                   placeholder="Paste your deployed Apps Script web app URL here" />
+            <button class="btn-refresh" onclick="loadVersionHistory()">Connect</button>
+        </div>
 
-Instructions
+        <div class="main-grid">
+            <div class="editor-panel">
+                <div class="meta-row">
+                    <div class="form-group">
+                        <label>Flow ID</label>
+                        <input type="text" id="flowId"
+                               value="8cda597f-c9c5-4440-827d-862142a271f9" />
+                    </div>
+                    <div class="form-group" style="max-width:160px;">
+                        <label>Prompt Type</label>
+                        <select id="promptType">
+                            <option value="RAI">RAI</option>
+                            <option value="Policies">Policies</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="meta-row">
+                    <div class="form-group">
+                        <label>Version Name</label>
+                        <input type="text" id="versionName"
+                               placeholder="e.g. v2.1 - Added edge cases" />
+                    </div>
+                    <div class="form-group">
+                        <label>Your Name</label>
+                        <input type="text" id="createdBy"
+                               placeholder="Who is saving this?" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Comment</label>
+                    <input type="text" id="comment"
+                           placeholder="What changed? (optional)" />
+                </div>
+                <div class="form-group" style="flex:1; display:flex; flex-direction:column;">
+                    <label>Prompt Text</label>
+                    <textarea id="promptText"
+                              placeholder="Paste or write your prompt here..."></textarea>
+                </div>
+                <div class="btn-row">
+                    <button class="btn-save" onclick="savePrompt()">Save Version</button>
+                    <button class="btn-clear" onclick="clearForm()">Clear</button>
+                </div>
+                <div id="saveStatus" class="status-bar"></div>
+            </div>
 
-✅ What to remove:
-	•	Any words, phrases, sentences, or HTML elements that explicitly state a fee is mandatory, required, or non-refundable (unless it is refundable).
-	•	Any mentions of the following fee types (not case sensitive), including their HTML containers (e.g. <p>, <li>, or nested tags if applicable):
-	•	“resort fee”
-	•	“holiday tax”
-	•	“Eco tax”
-	•	“destination fee”
-	•	“service fee”
-	•	“facility fee”
-	•	“amenity fee”
-	•	“utility surcharge”
-	•	“property fee”
-	•	Any patterns such as:
-	•	“per night”, “per stay”, “nightly”, “daily”, “each reservation”
-when these phrases are attached to mandatory, non-refundable fees.
-	•	Sentences like:
-	•	“This fee is mandatory for all guests requiring parking.”
-	•	“included in the resort fee.” (delete only the mandatory clause or sentence containing it)
+            <div class="history-panel">
+                <div class="history-header">
+                    <h2>Version History</h2>
+                    <button class="btn-refresh" onclick="loadVersionHistory()">Refresh</button>
+                </div>
+                <div class="version-nav">
+                    <button class="btn-nav" id="btnPrev"
+                            onclick="navigateVersion(-1)" disabled>&#8592; Prev</button>
+                    <button class="btn-nav" id="btnNext"
+                            onclick="navigateVersion(1)" disabled>Next &#8594;</button>
+                </div>
+                <div class="version-list" id="versionList">
+                    <div class="empty-state">
+                        Enter your Apps Script URL above and click Connect.
+                    </div>
+                </div>
+                <div id="loadStatus" class="status-bar"></div>
+            </div>
+        </div>
+    </div>
 
-⸻
+<script>
+let allVersions = [];
+let currentIdx = -1;
 
-✅ Removal approach with HTML nesting:
-	•	Remove the entire HTML element (e.g. paragraph, list item) containing the mandatory, non-refundable fee mention.
-	•	If the mention is within a nested tag (e.g. <span> within <p>), remove the entire outer HTML element to avoid broken markup.
+window.addEventListener('DOMContentLoaded', function() {
+    var saved = localStorage.getItem('appsScriptUrl');
+    if (saved) {
+        document.getElementById('appsScriptUrl').value = saved;
+        loadVersionHistory();
+    }
+    var savedName = localStorage.getItem('createdBy');
+    if (savedName) document.getElementById('createdBy').value = savedName;
+});
 
+document.getElementById('appsScriptUrl').addEventListener('change', function(e) {
+    localStorage.setItem('appsScriptUrl', e.target.value.trim());
+});
+document.getElementById('createdBy').addEventListener('change', function(e) {
+    localStorage.setItem('createdBy', e.target.value.trim());
+});
 
-*** EDGE CASES ***
-Cleaning fees should also be removed altogether. However, you need to distinguish between cleaning fees and cleaning fines for policy violations or damages. A cleaning fine is not a mandatory fee as it depends on whether guests provoked damaged or didn't respect a policy like pets being unallowed. In the latter case, please reformulate (replace "cleaning fee" with "cleaning fine". Only convert to “fine” when punitive terms are present in the same sentence/line: "not allowed", “excessive cleaning”, “damage”, “violation”, “non-compliance”, “unauthorized”, “smoking”, “policy breach”, “additional cleaning required”, “as a penalty”, “subject to fine”
+function getUrl() {
+    return document.getElementById('appsScriptUrl').value.trim();
+}
 
-⸻
+function savePrompt() {
+    var url = getUrl();
+    if (!url) { showStatus('saveStatus', 'Set your Apps Script URL first.', 'error'); return; }
+    var promptText = document.getElementById('promptText').value.trim();
+    if (!promptText) { showStatus('saveStatus', 'Prompt text is empty.', 'error'); return; }
 
-What NOT to do:
+    showStatus('saveStatus', 'Saving...', 'loading');
 
-❌ Do NOT:
-	•	Reword, paraphrase, or modify remaining text.
-	•	Invent or add new text.
-	•	Remove refundable and optinal fees (e.g. damage deposits, parking, housekeeping, etc).
-	•	Remove conditional charges (e.g. parking fee if only charged upon use). Keep the fee amount. 
-	•	Remove cleaning fees if they are penalties or pet-related.
-	•	Strip HTML tags or formatting for text elements that are not targeted for removal.
+    fetch(url, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            flow_id: document.getElementById('flowId').value.trim(),
+            prompt_type: document.getElementById('promptType').value,
+            version_name: document.getElementById('versionName').value.trim() || 'v' + Date.now(),
+            prompt_text: promptText,
+            comment: document.getElementById('comment').value.trim(),
+            created_by: document.getElementById('createdBy').value.trim() || 'Anonymous'
+        })
+    }).then(function() {
+        showStatus('saveStatus', 'Prompt saved! Refreshing...', 'success');
+        document.getElementById('versionName').value = '';
+        document.getElementById('comment').value = '';
+        setTimeout(loadVersionHistory, 2000);
+    }).catch(function(err) {
+        showStatus('saveStatus', 'Error: ' + err.message, 'error');
+    });
+}
 
-⸻
+function loadVersionHistory() {
+    var url = getUrl();
+    if (!url) { showStatus('loadStatus', 'No URL configured.', 'error'); return; }
+    showStatus('loadStatus', 'Loading versions...', 'loading');
 
-Output Requirements
+    fetch(url + '?action=getVersions')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.error) { showStatus('loadStatus', data.error, 'error'); return; }
+            allVersions = data.versions || [];
+            currentIdx = -1;
+            renderVersionList();
+            updateNavButtons();
+            showStatus('loadStatus', allVersions.length + ' version(s) loaded.', 'success');
+            setTimeout(function() { showStatus('loadStatus', '', ''); }, 3000);
+        })
+        .catch(function() {
+            showStatus('loadStatus', 'Could not load. Check URL and deployment.', 'error');
+        });
+}
 
-✅ Return the entire JSON document with only the "text" attribute updated in each policy element that required cleaning.
-✅ Leave all other JSON keys, values, structure, and formatting exactly as is.
-✅ Return only the updated JSON document. Do not include explanations, summaries, or additional commentary.
+function renderVersionList() {
+    var c = document.getElementById('versionList');
+    if (allVersions.length === 0) {
+        c.innerHTML = '<div class="empty-state">No versions saved yet.</div>';
+        return;
+    }
+    var html = '';
+    for (var i = 0; i < allVersions.length; i++) {
+        var v = allVersions[i];
+        var tc = (v.promptType || '').toLowerCase() === 'rai' ? 'rai' : 'policies';
+        var d = v.timestamp
+            ? new Date(v.timestamp).toLocaleString(undefined,
+                { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' })
+            : '';
+        html += '<div class="version-item' + (i === currentIdx ? ' selected' : '')
+            + '" onclick="loadVersion(' + i + ')">'
+            + '<div class="v-name">' + esc(v.versionName || 'Untitled') + '</div>'
+            + '<div class="v-meta">' + esc(v.createdBy || '')
+            + (d ? ' &middot; ' + d : '') + '</div>'
+            + (v.comment ? '<div class="v-meta" style="margin-top:2px;color:#777">'
+                + esc(v.comment) + '</div>' : '')
+            + '<span class="v-type ' + tc + '">' + esc(v.promptType || '?') + '</span>'
+            + '</div>';
+    }
+    c.innerHTML = html;
+}
 
-IMPORTANT! Return only the updated JSON document. Nothing else.
+function loadVersion(idx) {
+    if (idx < 0 || idx >= allVersions.length) return;
+    currentIdx = idx;
+    var v = allVersions[idx];
+    document.getElementById('flowId').value = v.flowId || '';
+    document.getElementById('promptType').value = v.promptType || 'RAI';
+    document.getElementById('versionName').value = '';
+    document.getElementById('createdBy').value = v.createdBy || '';
+    document.getElementById('comment').value = '';
+    document.getElementById('promptText').value = v.promptText || '';
+    document.getElementById('currentBadge').textContent =
+        (v.versionName || 'v' + (idx + 1)) + ' (' + (v.promptType || '?') + ')';
+    renderVersionList();
+    updateNavButtons();
+}
 
+function navigateVersion(dir) {
+    var next = currentIdx + dir;
+    if (next >= 0 && next < allVersions.length) loadVersion(next);
+}
 
-⸻
+function updateNavButtons() {
+    document.getElementById('btnPrev').disabled = currentIdx <= 0;
+    document.getElementById('btnNext').disabled =
+        currentIdx < 0 || currentIdx >= allVersions.length - 1;
+}
 
+function clearForm() {
+    document.getElementById('promptText').value = '';
+    document.getElementById('versionName').value = '';
+    document.getElementById('comment').value = '';
+    currentIdx = -1;
+    document.getElementById('currentBadge').textContent = 'No version loaded';
+    renderVersionList();
+    updateNavButtons();
+    showStatus('saveStatus', '', '');
+}
 
-{Policies}
-Output ONLY the JSON object with the fields to update. 
-Do NOT wrap it in an "extracted" key or any other wrapper.
-Return valid JSON directly.
+function showStatus(id, msg, type) {
+    var el = document.getElementById(id);
+    el.textContent = msg;
+    el.className = 'status-bar' + (type ? ' ' + type : '');
+}
+
+function esc(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+}
+</script>
+</body>
+</html>
